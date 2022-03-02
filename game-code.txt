@@ -1,0 +1,323 @@
+from collections import namedtuple
+import random
+print(" ^^^^^^^^^^ WELCOME TO YATZY ^^^^^^^^^^^^^^")
+x=[]
+while(True):
+    n=(input("Enter player name or start to play game :"))
+    x.append(n)
+    if x[len(x)-1]=="start":
+        x.pop()
+        if len(x)<2:
+            print("Two players required to play the game")
+            continue
+        else:
+            random.shuffle(x)
+            break
+players=namedtuple('players',['name','scorepad','dice'])
+players.name=x
+scorepad={}
+for i in range(0,len(players.name)):
+    print("Player",i+1,players.name[i])
+print("------------ GAME BEGINS -------------")
+def dice():
+    d=random.randint(1,6)
+    yield(d)
+def keeps():
+    keep=list()
+    print("\n\tDice:1\tDice:2\tDice:3\tDice:4\tDice:5")
+    dic=list()
+    for i in range(0,5):
+        dic.append(next(dice()))
+    print("\t",dic[0],"\t",dic[1],"\t",dic[2],"\t",dic[3],"\t",dic[4])
+    for i in range(0,6):
+        keep.append(int(input("Enter dice to keep or ´0´ to roll again:")))
+        if len(keep)==5 and 0 not in keep:
+            break
+        elif 0 in keep:
+            keep.remove(0)
+            break
+    for i in range(0,5):
+        if (i+1) not in keep:
+            dic.pop(i)
+            dic.insert(i,(next(dice())))
+    print("\n\tDice:1\tDice:2\tDice:3\tDice:4\tDice:5")
+    print("\t",dic[0],"\t",dic[1],"\t",dic[2],"\t",dic[3],"\t",dic[4])
+    keep.clear()
+    for i in range(0,6):
+        keep.append(int(input("Enter dice to keep or ´0´ to roll again:")))
+        if len(keep)==5 and 0 not in keep:
+            break
+        elif 0 in keep:
+            keep.remove(0)
+            break
+    for i in range(0,5):
+        if (i+1) not in keep:
+            dic.pop(i)
+            dic.insert(i,(next(dice())))
+    print("\n\tDice:1\tDice:2\tDice:3\tDice:4\tDice:5")
+    print("\t",dic[0],"\t",dic[1],"\t",dic[2],"\t",dic[3],"\t",dic[4])
+    keep.clear()
+    return(dic)
+def counter(dic,n):
+    count=0
+    for i in dic:
+        if i==n:
+            count+=1
+    return(count)
+def ones():
+    dic=keeps()
+    score=counter(dic,1)
+    return(score*1)
+def twos():
+    dic=keeps()
+    score=counter(dic,2)
+    return(score*2)
+def threes():
+    dic=keeps()
+    score=counter(dic,3)
+    return(score*3)
+def fours():
+    dic=keeps()
+    score=counter(dic,4)
+    return(score*4)
+def fives():
+    dic=keeps()
+    score=counter(dic,5)
+    return(score*5)
+def sixes():
+    dic=keeps()
+    score=counter(dic,6)
+    return(score*6)
+def pair():
+    dic=keeps()
+    temp=[0]
+    for i in range(1,6):
+        score=counter(dic,i)
+        if score>=2:
+            temp.append(i)
+    return(max(temp)*2)
+def twopairs():
+    dic=keeps()
+    temp=[0]
+    temp2=[0]
+    for i in range(1,6):
+        score=counter(dic,i)
+        if score>=2:
+            temp.append(i)
+    if len(temp)>=2:
+        temp2.append(max(temp))
+        temp.remove(max(temp))
+        temp2.append(max(temp))
+        return(temp2[1]*2+temp2[2]*2)
+    else:
+        return 0
+def threeofkind():
+    dic=keeps()
+    temp=[0]
+    for i in range(1,6):
+        score=counter(dic,i)
+        if score>=3:
+            temp.append(i)
+    return(max(temp)*3)
+def fourofkind():
+    dic=keeps()
+    temp=[0]
+    for i in range(1,6):
+        score=counter(dic,i)
+        if score>=4:
+            temp.append(i)
+    return(max(temp)*4)
+def smallstraight():
+    dic=keeps()
+    score=0
+    if counter(dic,1)>=1:
+        if counter(dic,2)>=1:
+            if counter(dic,3)>=1:
+                if counter(dic,4)>=1:
+                    if counter(dic,5)>=1:
+                        score=15
+    return(score)
+def largestraight():
+    dic=keeps()
+    score=0
+    if counter(dic,6)>=1:
+        if counter(dic,2)>=1:
+            if counter(dic,3)>=1:
+                if counter(dic,4)>=1:
+                    if counter(dic,5)>=1:
+                        score=20
+    return(score)  
+def fullhouse():
+    dic=keeps()
+    temp=[]
+    te=0
+    for i in range(1,6):
+        score=counter(dic,i)
+        if score>=3:
+            temp.append(i)
+            te=i*3
+        if i not in temp:
+            if score>=2:
+                te=te+(i*2)
+                return(te)
+    return 0
+def chance():
+    dic=keeps()
+    chance=0
+    for i in range(1,6):
+        score=counter(dic,i)
+        chance=chance+score*i
+    return(chance)
+def yatzy():
+    dic=keeps()
+    yatzy=0
+    for i in range(1,6):
+        score=counter(dic,i)
+        if score==5:
+            yatzy=50
+            break
+    return(yatzy)
+scorepad={}
+dicee={}
+dic=[]
+t={}
+category=["ones","twos","threes","fours","fives","sixes","pair","twopairs","threeofkind","fourofkind","smallstraight","largestraight","fullhouse","chance","yatzy"]
+def finalse(p):
+    tota=(sum(players.scorepad[p].values()))
+    return(tota)
+def printas():
+    for i in players.name:
+        t[i]=finalse(i)
+    print("Final Score")
+    for p in players.name:
+
+        if t[p]==max(t.values()):
+            print(p,"  Score:",t[p])
+            del t[p]
+for i in players.name:
+    scorepad[i]={}
+    dicee[i]={}
+players.scorepad=scorepad
+players.dice=dicee
+for i in players.name:
+    if "ones" in category:
+        print(i,"\t","ones")
+        scorepad[i]["ones"]=ones()
+        dicee[i]["ones"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["ones"])
+for i in players.name:
+    if "twos" in category:
+        print(i,"\t","twos")
+        scorepad[i]["twos"]=twos()
+        dicee[i]["twos"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["twos"])
+for i in players.name:
+
+    if "threes" in category:
+        print(i,"\t","threes")
+        scorepad[i]["threes"]=threes()
+        dicee[i]["threes"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["threes"])
+for i in players.name:
+    if "fours" in category:
+        print(i,"\t","fours")
+        scorepad[i]["fours"]=fours()
+        dicee[i]["fours"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["fours"])
+for i in players.name:
+    if "fives" in category:
+        print(i,"\t","fives")
+        scorepad[i]["fives"]=fives()
+        dicee[i]["fives"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["fives"])
+for i in players.name:
+    if "sixes" in category:
+        print(i,"\t","sixes")
+        scorepad[i]["sixes"]=sixes()
+        dicee[i]["sixes"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["sixes"])
+for i in players.name:
+    if "pair" in category:
+        print(i,"\t","pair")
+        scorepad[i]["pair"]=pair()
+        dicee[i]["pair"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["pair"])
+for i in players.name:
+    if "twopairs" in category:
+        print(i,"\t","twopairs")
+        scorepad[i]["twopairs"]=twopairs()
+        dicee[i]["twopairs"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["twopairs"])
+for i in players.name:
+    if "threeofkind" in category:
+        print(i,"\t","threeofkind")
+        scorepad[i]["threeofkind"]=threeofkind()
+        dicee[i]["threeofkind"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["threeofkind"])
+for i in players.name:
+    if "fourofkind" in category:
+        print(i,"\t","fourofkind")
+        scorepad[i]["fourofkind"]=fourofkind()
+        dicee[i]["fourofkind"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["fourofkind"])
+for i in players.name:
+    if "smallstraight" in category:
+        print(i,"\t","smallstraight")
+        scorepad[i]["smallstraight"]=smallstraight()
+        dicee[i]["smallstraight"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["smallstraight"])
+for i in players.name:
+    if "largestraight" in category:
+        print(i,"\t","largestraight")
+        scorepad[i]["largestraight"]=largestraight()
+        dicee[i]["largestraight"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["largestraight"])
+for i in players.name:
+    if "fullhouse" in category:
+        print(i,"\t","fullhouse")
+        scorepad[i]["fullhouse"]=fullhouse()
+        dicee[i]["fullhouse"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["fullhouse"])
+for i in players.name:
+    if "chance" in category:
+        print(i,"\t","chance")
+        scorepad[i]["chance"]=chance()
+        dicee[i]["chance"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["chance"])
+for i in players.name:
+    if "yatzy" in category:
+        print(i,"\t","yatzy")
+        scorepad[i]["yatzy"]=yatzy()
+        dicee[i]["yatzy"]=dice
+        players.scorepad=scorepad
+        players.dice=dicee
+        print("Player :",i,",Category 1 Score :",players.scorepad[i]["yatzy"])
+printas()
